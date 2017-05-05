@@ -1,10 +1,11 @@
 This repository contains the final report for Stat 154's team JAJA, consisting of Alex Chao, Austin Carango, Jason Abdelmesieh, 
 and Josh Min. 
 
-Within code/ we have .R files corresponding to the analyses carried out by Josh and Austin. Josh's analysis
-includes clustering, principal components regression, and neural nets. Austin's contains random forest and SVM. 
+Within code/ we have .R files corresponding to the analyses carried out by Josh and Austin and Alex. Josh's analysis
+includes clustering, principal components regression, and neural nets. Austin's contains random forest and SVM. Both Austin and Josh's
+analyses utilized the text mining for prediction of final business ratings. Alex's code was focused on the business attributes data, creating a dataset based off business attributes and analyzing it. 
 
-Within data/ we have the yelp datasets we used as well as txt files for positive and negative opinion words, found [here](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html)
+Within data/ we have the yelp datasets we used as well as txt files for positive and negative opinion words, which we found [here](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html)
 (citation below). 
 
 Finally, we have in the root directory, report.pdf which is our written report corresponding to our analysis, written by Jason and Alex. 
