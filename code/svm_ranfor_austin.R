@@ -69,10 +69,20 @@ for (i in 1:ncol(dtm_df)) {
 data<-dtm_df
 ####################################################################################
 
+### find indices of 22 words that have highest tf-idf ###
+avetfidf<-NULL
+for (i in 1:ncol(data)) {
+  avetfidf[i]<-mean(data[,i])
+}
+names(data)
+indices<-order(avetfidf, decreasing=TRUE)[1:24]
+names(data[,indices])
+#########################################################
+
 ### split into train/test if not kaggle submission for CV ###
 train<- sample(nrow(data),nrow(data)*.80)
-data_train<- data[train,]
-data_test<- data[-train,]
+data_train<- data[train,c(indices,725)]
+data_test<- data[-train,c(indices,725)]
 #############################################################
 
 #----------------------------------------------------------------------------------
@@ -135,22 +145,16 @@ data_test_kaggle <- dtm_df_test[, c(names(dtm_df_test) %in% names(dtm_df))]
 #MISCLASSIFICATION ERROR/CROSS VALIDATION
 
 ### random forest prediction (non-kaggle) ###
-ranfor<-randomForest(data_train[,-725], data_train[,725],
+ranfor<-randomForest(data_train[,-25], data_train[,25],
                       data=data_train, ntree=1000)
 myRanforPredictions<-predict(ranfor, newdata=data_test)
-agreement.Vector<-(myRanforPredictions==data_test$stars_.)
-length.Test.Vector<-length(data_test$stars_.)
-misClassif<-1-sum(agreement.Vector)/length.Test.Vector
-misClassif
+rmse<-sqrt(mean((data_test$stars_.-myRanforPredictions)^2))
 ##############################################
 
 ### svm prediction (non-kaggle) ###
 svm<-svm(stars_.~., data=data_train)
 mySvmPredictions<-predict(svm, newdata=data_test)
-agreement.Vector<-(mySvmPredictions==data_test$stars_.)
-length.Test.Vector<-length(data_test$stars_.)
-misClassif<-1-sum(agreement.Vector)/length.Test.Vector
-misClassif
+rmse<-sqrt(mean((data_test$stars_.-mySvmPredictions)^2))
 ###################################
 
 #----------------------------------------------------------------------------------
@@ -192,10 +196,4 @@ business_prediction<-business_prediction[-remove_ind,]
 write.table(business_prediction, file = "predictions.csv",
             sep=",", row.names = F)
 ##############################################
-
-
-
-
-
-
 
