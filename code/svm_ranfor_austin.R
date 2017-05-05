@@ -142,19 +142,19 @@ data_test_kaggle <- dtm_df_test[, c(names(dtm_df_test) %in% names(dtm_df))]
 
 #----------------------------------------------------------------------------------
 
-#MISCLASSIFICATION ERROR/CROSS VALIDATION
+#CROSS VALIDATION
 
 ### random forest prediction (non-kaggle) ###
 ranfor<-randomForest(data_train[,-25], data_train[,25],
                       data=data_train, ntree=1000)
 myRanforPredictions<-predict(ranfor, newdata=data_test)
-rmse<-sqrt(mean((data_test$stars_.-myRanforPredictions)^2))
+rmse<-sqrt(mean((as.numeric(data_test$stars_.)-as.numeric(myRanforPredictions))^2))
 ##############################################
 
 ### svm prediction (non-kaggle) ###
 svm<-svm(stars_.~., data=data_train)
 mySvmPredictions<-predict(svm, newdata=data_test)
-rmse<-sqrt(mean((data_test$stars_.-mySvmPredictions)^2))
+rmse<-sqrt(mean((as.numeric(data_test$stars_).-as.numeric(mySvmPredictions))^2))
 ###################################
 
 #----------------------------------------------------------------------------------
