@@ -1,0 +1,127 @@
+---
+title: "STAT 154 Yelp Project"
+author: 'Team JAJA: Josh Min (24447131), Austin Carango (24352455), Jason Abdelmesieh
+  (24468462), Alexander Chao (24427086)'
+date: "May 5, 2017"
+output:
+  pdf_document: 
+    latex_engine: xelatex
+  html_document: default
+---
+#Introduction
+Companies like Yelp collect data on businesses and their customers. Yelp's goal in collecting and analyzing this data is to provide users with the information they need and to create more reliability for their app so that both users and businesses have confidence in Yelp's services. Since user reviews are a large part of Yelp's service, the company wants to know how useful reviews are in portraying a business's perceived quality. Therefore a natural question Yelp asks is: how can we predict a business’s average star rating from its reviews?
+
+In this report we propose several methods for predicting average star rating from user reviews. To design our predictive model, we use a training dataset that contains 116,474 reviews on 2,510 different businesses. After designing our prediction model, we test the accuracy of this model on a test dataset which contains (fill in) reviews on 440 businesses. By testing our prediction methods on test data with known star ratings, we can estimate how our prediction will perform on future review data.
+
+While many models use quantitative predictor data such as price, gene expression, or disease incidence, in this model we predict from qualitative data. Because the contents of a review are a string of words and not a number, we use text mining methods to extract quantitative aspects from the qualitative reviews. For example, one such technique involves counting the incidence of keywords like “bad” or “tasty”, yielding a numerical variable. Once we have created quantitative dataset based on the review contents, we can apply standard machine learning techniques to create our prediction model. 
+
+#Results and Analysis
+```{r, echo = FALSE}
+library(knitr)
+Model <- c("SVM", "Random Forests", "Neural Nets")
+CV_RMSE <- c("1.31", "1.29", "x")
+Kaggle_RMSE <- c("0.46", "0.47", "x")
+Hyper_parameters <- c("N/A", "n_trees = 1000", "x")
+Features <- c("Pos/Neg Word Counts", "Pos/Neg Word Counts", "N/A")
+
+df <- as.data.frame(cbind(Model, CV_RMSE, Kaggle_RMSE, Hyper_parameters, Features))
+
+kable(df, caption = "Fig 1: Summary of prediction model performance")
+```
+
+Note that for our predictions, we used datasets containing all of the reviews and their corresponding text mining features. We then trained our models on this data, which treat each of the reviews as an observation and each text feature as a predictor variable. By training the models on the review data rather than aggregating the review features by business, we created a model that predicts the star rating given by a reviewer based off the contents of his/her review. We then aveaged these reviewer ratings over each business to predict a business' rating. We chose this method because it captures how features like negative and positive words relate to the individual user’s choice in star rating. To find cross-validation RMSE we used small subsets of what would be our kaggle predictors because the methods took a long time to train. CV RMSE values are also calculated for reviewer ratings rather than average business ratings here. For kaggle our SVM and Random Forest predictions utilized 724 total predictors whereas neural net used 481, since the choice of final number of predictors was at the discretion of our individual members.
+
+#Text Mining
+To analyze the text review data for a given business we must first alter the given unstructured data into a more interpretable dataset.  The first step is to give the text review data some more structure by transforming all letters into lowercase and removing other characters.  After that we split up the entire text review into individual words.  We removed words that do not affect a person’s rating such as pronouns, articles, and prepositions.  Since many common words were naturally food names, we removed them since they too do not describe the experience and do not necessarily influence the review score.  We also remove any sparse terms--terms that have a low usage frequency throughout all reviews.  This helps us lower the number of words in our analysis from being in the hundreds of thousands, to just around one thousand terms.  Once we have this list of words, we calculated tf-idf weights for each word. Tf-idf stands for termfrequency-inverse document frequency. This statistic increases with term frequency within a document but decreases with term frequency over an entire corpus. So if a term occurs many times in a select group of documents, for example, it will have a high tf-idf weight. In doing so we can regress the tf-idf weights of significant words (by significant we mean words that provide some insight into how well the reviewer perceived the business they are reviewing) within a review on the number of stars that reviewer gives the business. Additionally, in our SVM and random forest predictions we included predictors which count document totals of select words that indicate positive and negative opinion using txt files obtained from Hu and Liu (2004). 
+
+        	
+#Random Forests
+Random forests are an ensemble learning method based off of CART that create a more stable, albeit less interpretable prediction model. 
+CART creates decision trees to guide prediction. Each node of the tree is a constant split in a single predictor variable. For a single-split, single-variable case, the squared error function is given by:
+
+$$L(s,c_1,c_2) = \sum_{x_i \leq s}(y_i - c_1)^2 + \sum_{x_i \geq s}(y_i - c_2)^2$$
+
+In a multivariate setting, CART finds the constant split in a single variable that minimizes the above loss. This procedure is then repeated on every daughter branch until the tree reaches the predetermined size. While CART trees tend to have low-bias, they tend to have high variance and overfit the data, which in a predictive setting translates to unstable prediction. In order to achieve a more stable prediction at the cost of a small bias increase, we decided to use random forests.
+
+Random forests first use bagging to create a library of CART tree models. This involves creating random samples of size n (created by sampling with replacement), similar to the procedure for bootstrapping. Each one of these B samples is then used to train an independent CART tree. To predict the response from a new observation, the new observation is put through each of the B trees and then each of these samples is averaged. By averaging many independent trees, random forests reduces variance.
+
+While random forest outperformed SVM in cross-validation, it performed worse than SVM in kaggle. This may have been because random forests considers and splits the text mining variables individually and therefore misses interactions between variables.
+
+#Neural Nets
+We attempted using neural nets analysis for our review data.  We did not achieve a better root mean squared error than random forests.  Neural nets is one of the best methods to use for natural language processing. The way neural nets work is by interpreting the data as predictors and classification with one or more hidden layers of functions in between them.  The value of the initial predictor as it passes through the other layers gets diminished by an arbitrary value ( $\sigma(v) = \frac{1} {1 + e^{-v}}$ ), where v is the vector that takes each input into the next layer of the neural net).  The V’s are initially chosen at random and are minimized to get the optimal path for each predictor.  Then we take a function $g(v'x)$ that is used to take the predictor values and v and give us our predicted output.  Neural nets is  a certain version of projection pursuit regression (PPR) that assumes the form of $g(v)$ to be:
+$$g_k(T) = \frac{e^{T_k}} {\sum_{k=1}^K e^{T_k}}$$
+$$T_k = \beta_0k + \beta^{'}_{k}Z, k = 1,...,K$$
+The algorithm is completed when all of the V’s are minimized and thus the $g_k(T)$’s are also minimized according to some loss function for each predictor and in each layer.    
+The neural nets method on the text mined data learns the data from the number of instances a word appears in a review.  The neural net then guesses a pattern and sees how far off it is from the actual response variable.  After one loop the neural net repeats itself until it finds the most optimal pattern between the word counts and the given star rating.  After every loop the algorithm adjusts the weights given to each vector v related to each input predictor.  In this case neural net attempts to find a pattern between all the words and the star rating and then it continues to improve its prediction by updating what it “thinks” is the pattern that connects word usage and star rating. Neural nets is a powerful learning tool since it optimizes the interaction between all predictors for a certain observation and it repeatedly updates its methods in order to become optimal.
+
+#Support Vector Machines (SVM)
+We achieved favorable results using support vector machines.  Support vector machines (SVMs) attempt to separate each class in a data set with a decision plane.  Since most data is not simply linearly separable, we use SVMs that will transform the data into a feature space in a higher dimension that may be more easily separable with a hyperplane.  Since multiclass SVM is more difficult to separate using a decision plane, R uses a “one vs. one” method to determine where the data should be split between a pair of classes.  The method then goes through each possible pair combinations and then forms a decision plane between all of the classes using that “one vs one” split.  SVM works by finding the decision boundary between two linearly separable groups using a hyperplane, of the form $x'β + β_{0}$. The optimal hyperplane will have the largest margin $(= 1/||B||)$. This can be interpreted as a loss + penalty problem where the loss function is a hinge loss: $L(y, f) = (1 - yf)_{+}$ where and the penalization is on the B term.  This method classifies a point to group A depending on the sign of $G(x) = sign(x'\hat{β} + \hat{β_0})$.  
+
+We used SVM on our text mined review data based on the tf-idf weight of 722 different words as well as the positive and negative term counts as mentioned earlier.  The SVM algorithm takes each pairwise star ratings (i.e. 1 vs 1.5 and 1 vs 4) and attempts to find the best decision boundary between the two ratings and splits them.  This is the case for each pair and the resulting boundary is learned.  Since these pair boundaries are likely to be intersecting, a new observation will be predicted to be in a class judged by a majority vote rule.  In other words, if an observation lies in overlapping regions corresponding to different decision boundaries, it will be predicted to a class if a majority of the regions pertain to that particular class.  The nine different classes are split up by these decision boundaries and gave us our most accurate predictions.  
+
+
+#Attribute Analysis
+In addition to reviews for Yelp businesses, we were given attribute data for each business. These attributes are categorical variables that describe things like parking availability, ambience, and WiFi. Interestingly, each business is not required to give values for each of these attributes, leading to a dataset with many missing values: the mean number of missing attributes per business was 1190 for the training dataset with 2510 businesses. Furthermore, categorical/binary data is very difficult to impute. This makes the attributes data a poor choice for prediction since both training data and incoming new data will have far too many missing values. Even when attributes and observations are removed to create a dataset with no missing values, performing linear regression of average star ratings by the attributes gave an F-statistic of 0.1956 > 0.05, suggesting that the attributes as a whole are insufficient to predict average star ratings. 
+
+To investigate the utility of this attribute data, we created a new variable that counts the number of missing attributes for each business. We proposed that this new variable may capture the type of business, since well reviewed businesses may have a more fleshed out Yelp profile with more attributes. Instead, we found that the number of missing attributes was relatively uniform across average star ratings:
+```{r, echo = FALSE, message = FALSE, fig.height = 3, fig.width = 7}
+#####Attributes data analysis
+#directories
+#setwd("~/Documents/YELP")
+#getwd()
+
+#packages
+library(plyr)
+library(reshape2)
+library(stringr)
+library(glmnet)
+library(lattice)
+
+#Reading in attribute data
+att_df <- read.csv("attributes.csv", stringsAsFactors = TRUE)
+att_df <- att_df[,2:41]
+
+
+#analyzing attributes by restaurant category
+boxplot(NAs ~ stars, data = att_df, main = "Missing Attributes by Average Star Rating", xlab = "stars", ylab = "missing")
+```
+
+Adding this variable did not yield a 0.05-level significant F-statistic either. Furthermore, the correlation matrix of the attribute data is fairly homogenous around zero, suggesting poor linear relationships overall:
+
+```{r, echo = FALSE, message = FALSE}
+#learning to cope with the missing values
+#removes some variables and some observations such that there are no NAs
+testing <- rowSums(is.na(att_df))
+rem_miss <- which(testing < 5)
+test1 <- att_df[rem_miss,]
+
+count_nas2 <- sapply(test1, function (x) sum(is.na(x)))
+keep_var <- which(count_nas2 == 0)
+att_sparse <- test1[,keep_var]
+
+#analysis of reduced (but no NA) attributes data
+#plotting a correlation heatmap
+library(ggplot2)
+total_cor <- cor(na.omit(att_sparse[c(2:24)]))
+c <- qplot(x=Var1, y=Var2, data=melt(total_cor), fill=value, geom="tile") 
+c <- c + scale_fill_gradientn(colors = c("blue", "white","#cc0000"), limits = c(-1,1))
+c <- c + theme(axis.text.x = element_text(angle = 35, hjust = 1))
+c <- c + labs(fill = "Correlation")
+c <- c+ ggtitle("Correlation Heatmap: YELP Attributes")
+c <- c+  theme(axis.title.x=element_blank(), axis.title.y=element_blank())
+#c <- c + theme(plot.margin = unit(c(-0.9,0.5,4,0.5), "cm"))
+#c <- c + geom_text(aes(Var2, Var1, label = format(round(value, 2), nsmall = 2)), color = "black", size = 4)
+print(c)
+
+```
+
+These results suggest that the attribute’s particular values and even the presence of attribute data are not useful in predicting average star rating. Since having filled in attributes does not significantly increase a business’s average rating, there is no incentive for businesses to fill them out, therefore suggesting that it is not cost efficient to maintain this aspect of the Yelp service.
+
+#Conclusion
+
+In this report we discuss using machine learning methods to predict average star ratings on Yelp by features in business reviews. We were able to acheive an RMSE of 0.46 using support vector machines, suggesting that the interactions between text features in reviews is key. However, since our RMSE is non-trivial, Yelp review data is probably not perfect in predicting average star ratings. While prediction models could be improved, these results suggest that it is still worthwile to implement star ratings as it captures information about the users' perception of business that the reviews themselves do not. 
+
+#References
+Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." Proceedings of the ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD-2004), Aug 22-25, 2004, Seattle, Washington, USA
+
+
