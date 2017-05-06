@@ -83,7 +83,7 @@ att_df <- att_df[,2:41]
 
 
 #analyzing attributes by restaurant category
-boxplot(NAs ~ stars, data = att_df, main = "Missing Attributes by Average Star Rating", xlab = "stars", ylab = "missing")
+boxplot(NAs ~ stars, data = att_df, main = "Figure 2: Missing Attributes by Average Star Rating", xlab = "stars", ylab = "missing")
 ```
 
 Adding this variable did not yield a 0.05-level significant F-statistic either. Furthermore, the correlation matrix of the attribute data is fairly homogenous around zero, suggesting poor linear relationships overall:
@@ -107,7 +107,7 @@ c <- qplot(x=Var1, y=Var2, data=melt(total_cor), fill=value, geom="tile")
 c <- c + scale_fill_gradientn(colors = c("blue", "white","#cc0000"), limits = c(-1,1))
 c <- c + theme(axis.text.x = element_text(angle = 35, hjust = 1))
 c <- c + labs(fill = "Correlation")
-c <- c+ ggtitle("Correlation Heatmap: YELP Attributes")
+c <- c+ ggtitle("Figure 3: Correlation Heatmap: YELP Attributes")
 c <- c+  theme(axis.title.x=element_blank(), axis.title.y=element_blank())
 #c <- c + theme(plot.margin = unit(c(-0.9,0.5,4,0.5), "cm"))
 #c <- c + geom_text(aes(Var2, Var1, label = format(round(value, 2), nsmall = 2)), color = "black", size = 4)
@@ -120,6 +120,9 @@ These results suggest that the attribute’s particular values and even the pres
 #Conclusion
 
 In this report we discuss using machine learning methods to predict average star ratings on Yelp by features in business reviews. We were able to acheive an RMSE of 0.46 using support vector machines, suggesting that the interactions between text features in reviews is key. However, since our RMSE is non-trivial, Yelp review data is probably not perfect in predicting average star ratings. While prediction models could be improved, these results suggest that it is still worthwile to implement star ratings as it captures information about the users' perception of business that the reviews themselves do not. 
+
+(Alex addition)
+To improve our prediction accuracy, we propose performing neural nets on a complete dataset without truncating the data or text features. This would require computational capabilities outside of our scope but could potentially provide a better model. The dependence on computationally intensive models does, however, bring in to question the utility of using reviews to predict average star ratings. Therefore it may be more cost effective to continue recording star ratings rather than spending computational power to predict them from the reviews.
 
 #References
 Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." Proceedings of the ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD-2004), Aug 22-25, 2004, Seattle, Washington, USA
