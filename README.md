@@ -8,7 +8,7 @@ analyses utilized the text mining for prediction of final business ratings. Alex
 Within data/ we have the yelp datasets we used as well as txt files for positive and negative opinion words, which we found [here](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html)
 (citation below). 
 
-Finally, we have in the root directory, report.pdf which is our written report corresponding to our analysis, written by Jason and Alex. 
+Finally, we have in the root directory, report.pdf which is our written report corresponding to our analysis, written by Jason, Alex, and Austin. 
 
 Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
        Proceedings of the ACM SIGKDD International Conference on Knowledge 
