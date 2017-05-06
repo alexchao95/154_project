@@ -1,3 +1,5 @@
+#Team JAJA Report
+
 This repository contains the final report for Stat 154's team JAJA, consisting of Alex Chao, Austin Carango, Jason Abdelmesieh, 
 and Josh Min. 
 
@@ -9,6 +11,8 @@ Within data/ we have the yelp datasets we used as well as txt files for positive
 (citation below). 
 
 Finally, we have in the root directory, report.pdf which is our written report corresponding to our analysis, written by Jason, Alex, and Austin. 
+
+#Reference:
 
 Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
        Proceedings of the ACM SIGKDD International Conference on Knowledge 
